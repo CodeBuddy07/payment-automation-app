@@ -1,0 +1,87 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- ===== SMS Gateway Agent permissions ===== -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <uses-permission android:name="android.permission.READ_SMS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_NUMBERS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <!-- specialUse: the honest type for a persistent SMS-monitoring agent. Unlike dataSync it has
+         no per-day runtime cap (which crashed with "time limit already exhausted" on Android 15+). -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <application
+      android:name=".MainApplication"
+      android:label="@string/app_name"
+      android:icon="@mipmap/ic_launcher"
+      android:roundIcon="@mipmap/ic_launcher_round"
+      android:allowBackup="false"
+      android:theme="@style/AppTheme"
+      android:usesCleartextTraffic="${usesCleartextTraffic}"
+      android:supportsRtl="true">
+
+      <activity
+        android:name=".MainActivity"
+        android:label="@string/app_name"
+        android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize|uiMode"
+        android:launchMode="singleTask"
+        android:windowSoftInputMode="adjustResize"
+        android:exported="true">
+        <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
+      </activity>
+
+      <!-- Incoming SMS observer. High priority so we receive before low-priority apps. -->
+      <receiver
+        android:name=".sms.SmsReceiver"
+        android:permission="android.permission.BROADCAST_SMS"
+        android:exported="true">
+        <intent-filter android:priority="999">
+            <action android:name="android.provider.Telephony.SMS_RECEIVED" />
+        </intent-filter>
+      </receiver>
+
+      <!-- Reschedules the queue worker and (optionally) the foreground service after reboot. -->
+      <receiver
+        android:name=".boot.BootReceiver"
+        android:exported="true">
+        <intent-filter>
+            <action android:name="android.intent.action.BOOT_COMPLETED" />
+            <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+            <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
+        </intent-filter>
+      </receiver>
+
+      <!-- SIM insert / remove / swap detection. -->
+      <receiver
+        android:name=".sim.SimChangeReceiver"
+        android:exported="true">
+        <intent-filter>
+            <action android:name="android.intent.action.SIM_STATE_CHANGED" />
+        </intent-filter>
+      </receiver>
+
+      <!-- Persistent mode: keeps the agent process resident so SMS capture and forwarding survive
+           screen-off, background and aggressive OEM battery managers. stopWithTask=false keeps it
+           running after the app is swiped from recents. -->
+      <service
+        android:name=".service.SmsAgentForegroundService"
+        android:foregroundServiceType="specialUse"
+        android:stopWithTask="false"
+        android:exported="false">
+        <property
+          android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+          android:value="Continuously monitors incoming transactional SMS and forwards them to the operator's server for payment reconciliation, which the standard foreground-service types do not cover." />
+      </service>
+
+    </application>
+</manifest>
