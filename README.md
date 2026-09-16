@@ -3,7 +3,7 @@
 A standalone, **backend-free** Android app that observes incoming SMS, runs them through
 configurable **rules + processors**, and forwards structured data to your **webhooks**.
 
-It ships with **no server of its own** — you point it at *your* endpoints. The same binary serves
+It ships with **no server of its own**: you point it at *your* endpoints. The same binary serves
 payment verification, OTP forwarding, bank-transaction monitoring, business automation, alert
 forwarding and CRM integration **without changing the app's code**.
 
@@ -85,7 +85,7 @@ CMake folder and links against the matching debug prefab) yet not the `debug` bu
 `BuildConfig.DEBUG=false` → it bundles the production JS and runs **without a Metro dev server**).
 The result is a fully self-contained, sideloadable APK.
 
-### First launch — guided setup
+### First launch: guided setup
 
 On first open the app shows a **guided Onboarding checklist** that walks through everything the
 agent needs and deep-links straight to the right system screen for each item:
@@ -109,7 +109,7 @@ Each row re-checks itself when you return from the settings page (via `AppState`
 2. **Rules** → *New*. Choose how the **sender** matches (any / contains / exact / regex) and a
    **processor** (Raw / Template / Regex / JSON / JavaScript).
 3. For a Template rule, tap **Train from existing SMS**, select real messages, and the app
-   generates a reusable `{placeholder}` template — *no AI involved*, fully deterministic.
+   generates a reusable `{placeholder}` template: *no AI involved*, fully deterministic.
 4. Optionally provide a **payload template** to shape the outgoing JSON.
 5. **Test** the rule against a sample or your whole message history before enabling it.
 
@@ -119,7 +119,7 @@ Matching SMS are now parsed and delivered to your webhook.
 
 ## Processors (plugin architecture)
 
-Processors implement a single Kotlin interface and self-register in `ProcessorRegistry` —
+Processors implement a single Kotlin interface and self-register in `ProcessorRegistry` ,
 **new processors require no changes to rules, the pipeline, or the UI**.
 
 | Processor   | What it does |
@@ -128,7 +128,7 @@ Processors implement a single Kotlin interface and self-register in `ProcessorRe
 | `template`  | Matches a trained `{placeholder}` template, extracts named fields. |
 | `regex`     | Runs a custom regex; named groups become fields. |
 | `json`      | Parses JSON embedded in the body, maps via JSON paths. |
-| `javascript`| Runs sandboxed JS (Rhino) — works even when the app is killed. |
+| `javascript`| Runs sandboxed JS (Rhino): works even when the app is killed. |
 
 ```kotlin
 interface Processor {
@@ -138,7 +138,7 @@ interface Processor {
 // ProcessorResult = { matched, data, errors, metadata }
 ```
 
-Future processors (Payment, AI, HTTP, custom user processors) drop in the same way — see
+Future processors (Payment, AI, HTTP, custom user processors) drop in the same way: see
 [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md#adding-a-processor).
 
 ---
@@ -219,8 +219,8 @@ Management · Webhook Settings · Queue Management · SIM Information · Diagnos
 
 ## Documentation
 
-- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — module map, data flow, extension points.
-- [`docs/DATABASE.md`](docs/DATABASE.md) — full SQLite schema.
+- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md): module map, data flow, extension points.
+- [`docs/DATABASE.md`](docs/DATABASE.md): full SQLite schema.
 
 ## License
 
